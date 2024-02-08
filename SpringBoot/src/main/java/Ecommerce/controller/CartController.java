@@ -1,11 +1,10 @@
 package Ecommerce.controller;
 
-import java.util.HashMap;
+
 import java.util.List;
-import java.util.Map;
+
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,6 +20,7 @@ import Ecommerce.dto.CartDto;
 import Ecommerce.entity.Cart;
 import Ecommerce.entity.User;
 import Ecommerce.service.CartService;
+import Ecommerce.service.SessionService;
 import lombok.AllArgsConstructor;
 
 @RestController
@@ -28,11 +28,10 @@ import lombok.AllArgsConstructor;
 public class CartController {
     
     private final CartService cartService;
-     private final Map<String, User> loggedInUsers = new HashMap<>();
-
+     private final SessionService sessionService;
      @PostMapping("/cart/{productId}")
     public ResponseEntity<Cart> addToCart(@RequestHeader("Authorization") String sessionId, @PathVariable Long productId, @RequestBody CartDto cartDto) {
-        User user = loggedInUsers.get(sessionId);
+        User user = sessionService.getUserBySessionId(sessionId);
         if (user != null) {
             Cart cartItem = cartService.addToCart(user.getId(), productId, cartDto.getQuantity());
             return new ResponseEntity<>(cartItem, HttpStatus.CREATED);
@@ -51,7 +50,7 @@ public class CartController {
     // Update Cart
     @PutMapping("/cart/{cartId}")
     public ResponseEntity<Cart> updateCart(@RequestHeader("Authorization") String sessionId, @PathVariable Long cartId, @RequestBody CartDto cartDto) {
-        User user = loggedInUsers.get(sessionId);
+        User user = sessionService.getUserBySessionId(sessionId);
         if (user != null) {
             Cart updatedCartItem = cartService.updateCart(cartId, cartDto);
             return new ResponseEntity<>(updatedCartItem, HttpStatus.OK);
@@ -63,7 +62,7 @@ public class CartController {
     // Delete Cart Item
     @DeleteMapping("/cart/{cartId}")
     public ResponseEntity<Void> deleteCartItem(@RequestHeader("Authorization") String sessionId, @PathVariable Long cartId) {
-        User user = loggedInUsers.get(sessionId);
+        User user = sessionService.loggedInUsers.get(sessionId);
         if (user != null) {
             cartService.deleteCartItem(cartId);
             return ResponseEntity.noContent().build();
