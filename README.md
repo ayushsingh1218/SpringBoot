@@ -3,6 +3,7 @@
 ###Functional-APIs
 * Register-user: http://localhost:8080/user/register
 * Login-user: http://localhost:8080/user/login
+* Product :http://localhost:8080/product
 * Cart-Items (add products in the cart): http://localhost:8080/cart
 
 ### Non-Functional-APIs
