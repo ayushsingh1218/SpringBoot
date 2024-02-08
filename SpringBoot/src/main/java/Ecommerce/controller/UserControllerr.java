@@ -5,25 +5,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import Ecommerce.dto.CartDto;
-import Ecommerce.dto.CheckoutDto;
+
 import Ecommerce.dto.UserDtoLogin;
-import Ecommerce.entity.Cart;
-import Ecommerce.entity.Checkout;
-import Ecommerce.entity.Product;
+
 import Ecommerce.entity.User;
-import Ecommerce.service.CartService;
-import Ecommerce.service.CheckoutService;
-import Ecommerce.service.ProductService;
+
+import Ecommerce.service.SessionService;
 import Ecommerce.service.UserService;
 import lombok.AllArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+
 import java.util.List;
-import java.util.Map;
+
 import java.util.Optional;
-import java.util.UUID;
+
 
 @AllArgsConstructor
 @RequestMapping("/user")
@@ -32,12 +27,13 @@ public class UserControllerr
 {
 
     private final UserService userService;
+   
     
         
 
     // private final Map<String, User> loggedInUsers = new HashMap<>();
 
-    private final Map<String, User> loggedInUsers = new HashMap<>();
+       private final SessionService sessionService;
 
     // User Registration
     @PostMapping
@@ -80,17 +76,20 @@ public class UserControllerr
     public ResponseEntity<String> loginUser(@RequestBody UserDtoLogin userDtoLogin) {
         Optional<User> optionalUser = userService.authenticate(userDtoLogin.getEmail(), userDtoLogin.getPassword());
         if (optionalUser.isPresent()) {
-            String sessionId = generateSessionId();
-            loggedInUsers.put(sessionId, optionalUser.get());
+            String sessionId = sessionService.generateSessionId();
+            sessionService.loggedInUsers.put(sessionId, optionalUser.get());
             return ResponseEntity.ok(sessionId);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Email or Password");
         }
     }
 
+   
+
     // Logout
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@RequestHeader("Authorization") String sessionId) {
-        loggedInUsers.remove(sessionId);
+        sessionService.loggedInUsers.remove(sessionId);
         return ResponseEntity.ok("Logged out successfully");
     }
+}
